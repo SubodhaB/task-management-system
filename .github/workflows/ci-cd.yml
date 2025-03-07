@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install dependencies
+        run: |
+          composer install --no-progress --no-suggest
+
+      - name: Run Security Scan
+        run: |
+          composer require --dev phpstan/phpstan
+          vendor/bin/phpstan analyse --level=max .
+
+      - name: Deploy to InfinityFree (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ftpupload.net
+          username: your-ftp-username
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /htdocs/
+
