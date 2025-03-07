@@ -18,22 +18,28 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
+          tools: composer, phpstan
 
       - name: Install dependencies
-        run: |
-          composer install --no-progress --no-suggest
+        run: composer install --no-progress --no-suggest --prefer-dist
 
-      - name: Run Security Scan
-        run: |
-          composer require --dev phpstan/phpstan
-          vendor/bin/phpstan analyse --level=max .
+      - name: Run Security Scan with PHPStan
+        run: vendor/bin/phpstan analyse --level=max .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Deploy to InfinityFree (FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.3
         with:
-          server: ftpupload.net
-          username: your-ftp-username
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: /htdocs/
-
+          server: ftpupload.net    # Set in GitHub Secrets
+          username: if0_38452465  # Set in GitHub Secrets
+          password: a4gsj2PLLV6VNT  # Set in GitHub Secrets
+          local-dir: ./ 
+          server-dir: /htdocs/  
+          protocol: ftps  # Secure FTP
