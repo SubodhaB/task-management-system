@@ -20,6 +20,13 @@ jobs:
           php-version: '8.1'
           tools: composer, phpstan
 
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
       - name: Install dependencies
         run: composer install --no-progress --no-suggest --prefer-dist
 
@@ -37,9 +44,9 @@ jobs:
       - name: Deploy to InfinityFree (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.3
         with:
-          server: ftpupload.net    # Set in GitHub Secrets
-          username: if0_38452465  # Set in GitHub Secrets
-          password: a4gsj2PLLV6VNT  # Set in GitHub Secrets
-          local-dir: ./ 
-          server-dir: /htdocs/  
-          protocol: ftps  # Secure FTP
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./  # ඔයාගේ local project folder එක
+          server-dir: /htdocs/  # InfinityFree FTP එකේ upload වෙන folder එක
+          protocol: ftps  # Secure FTP connection
