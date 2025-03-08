@@ -3,19 +3,25 @@
 session_start();
 include "config.php";
 
+// Redirect if not logged in
 if (!isset($_SESSION["user_id"])) {
     header("Location: login.php");
     exit();
 }
 
-// Ensure CSRF token exists in the session
-if (!isset($_SESSION["csrf_token"])) {
-    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+// Ensure CSRF token exists
+try {
+    if (!isset($_SESSION["csrf_token"])) {
+        $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+    }
+} catch (Exception $e) {
+    die("Error generating CSRF token: " . $e->getMessage());
 }
 
 // Ensure database connection is valid
-if (!$conn instanceof mysqli) {
-    die("Database connection failed.");
+if (!isset($conn) || !$conn instanceof mysqli) {
+    error_log("Database connection failed.");
+    die("Database connection issue. Please try again later.");
 }
 
 // Handle form submission
@@ -39,7 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt = $conn->prepare("INSERT INTO tasks (user_id, title, description) VALUES (?, ?, ?)");
     
     if (!$stmt) {
-        die("Error preparing statement: " . $conn->error);
+        error_log("Error preparing statement: " . $conn->error);
+        die("Server error. Please try again later.");
     }
 
     $stmt->bind_param("iss", $user_id, $title, $description);
@@ -50,7 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: tasks.php");
         exit();
     } else {
-        echo "Error: " . $stmt->error;
+        error_log("Error inserting task: " . $stmt->error);
+        echo "Error saving task. Please try again.";
     }
 }
 ?>
@@ -68,8 +76,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <h2>Add New Task</h2>
         <form action="add_task.php" method="POST">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <input type="text" name="title" placeholder="Task Title" required>
-            <textarea name="description" placeholder="Task Description"></textarea>
+            <input type="text" name="title" placeholder="Task Title" value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>" required>
+            <textarea name="description" placeholder="Task Description"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
             <button type="submit">Add Task</button>
         </form>
         <a href="tasks.php">Back to Tasks</a>
