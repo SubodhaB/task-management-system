@@ -3,7 +3,8 @@
     "description": "A simple task management system built with PHP and MySQL for managing daily tasks efficiently.",
     "type": "project",
     "require-dev": {
-        "monolog/monolog": "^2.10"
+        "monolog/monolog": "^2.10",
+        "phpstan/phpstan": "^2.1"
     },
     "license": "MIT",
     "authors": [
@@ -12,6 +13,5 @@
             "email": "subodha.official@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
-    "require": {}
+    "minimum-stability": "stable"
 }
