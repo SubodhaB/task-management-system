@@ -1,0 +1,17 @@
+{
+    "name": "subodhb/task-management-system",
+    "description": "A simple task management system built with PHP and MySQL for managing daily tasks efficiently.",
+    "type": "project",
+    "require-dev": {
+        "monolog/monolog": "^2.10"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SubodhaB",
+            "email": "subodha.official@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
